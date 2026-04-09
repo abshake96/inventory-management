@@ -1,15 +1,15 @@
 <template>
   <div class="restocking">
     <div class="page-header">
-      <h2>{{ t('restocking.title') }}</h2>
-      <p>{{ t('restocking.description') }}</p>
+      <h2>{{ t("restocking.title") }}</h2>
+      <p>{{ t("restocking.description") }}</p>
     </div>
 
     <!-- Budget Slider -->
     <div class="card budget-card">
       <div class="budget-controls">
         <div class="budget-label-row">
-          <label class="budget-label">{{ t('restocking.budgetLabel') }}</label>
+          <label class="budget-label">{{ t("restocking.budgetLabel") }}</label>
           <span class="budget-value">{{ formatCurrency(budget) }}</span>
         </div>
         <input
@@ -22,7 +22,7 @@
         />
         <div class="budget-range-labels">
           <span>{{ formatCurrency(1000) }}</span>
-          <span class="budget-help">{{ t('restocking.budgetHelp') }}</span>
+          <span class="budget-help">{{ t("restocking.budgetHelp") }}</span>
           <span>{{ formatCurrency(50000) }}</span>
         </div>
       </div>
@@ -31,41 +31,52 @@
     <!-- Stats Cards -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">{{ t('restocking.statsItems') }}</div>
+        <div class="stat-label">{{ t("restocking.statsItems") }}</div>
         <div class="stat-value">{{ recommendations.length }}</div>
       </div>
       <div class="stat-card" :class="overBudget ? 'danger' : 'success'">
-        <div class="stat-label">{{ t('restocking.statsCost') }}</div>
+        <div class="stat-label">{{ t("restocking.statsCost") }}</div>
         <div class="stat-value">{{ formatCurrency(totalEstimatedCost) }}</div>
       </div>
-      <div class="stat-card" :class="budgetRemaining < 0 ? 'danger' : 'success'">
-        <div class="stat-label">{{ t('restocking.statsBudgetRemaining') }}</div>
+      <div
+        class="stat-card"
+        :class="budgetRemaining < 0 ? 'danger' : 'success'"
+      >
+        <div class="stat-label">{{ t("restocking.statsBudgetRemaining") }}</div>
         <div class="stat-value">{{ formatCurrency(budgetRemaining) }}</div>
       </div>
     </div>
 
     <!-- Loading / Error -->
-    <div v-if="loading" class="loading">{{ t('restocking.loading') }}</div>
+    <div v-if="loading" class="loading">{{ t("restocking.loading") }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 
     <!-- Success Banner -->
     <div v-if="orderSuccess" class="success-banner">
       <div class="success-content">
-        <strong>{{ t('restocking.orderSuccess') }}</strong>
-        <span>{{ t('restocking.orderSuccessDetail', { orderNumber: orderSuccess.order_number }) }}</span>
-        <router-link to="/orders" class="success-link">{{ t('restocking.viewOrders') }}</router-link>
+        <strong>{{ t("restocking.orderSuccess") }}</strong>
+        <span>{{
+          t("restocking.orderSuccessDetail", {
+            orderNumber: orderSuccess.order_number,
+          })
+        }}</span>
+        <router-link to="/orders" class="success-link">{{
+          t("restocking.viewOrders")
+        }}</router-link>
       </div>
     </div>
 
     <!-- Recommendations Table -->
     <div v-if="!loading && !error" class="card">
       <div class="card-header">
-        <h3 class="card-title">{{ t('restocking.tableTitle') }}</h3>
-        <span v-if="overBudget" class="badge danger">{{ t('restocking.overBudget') }}</span>
+        <h3 class="card-title">{{ t("restocking.tableTitle") }}</h3>
+        <span v-if="overBudget" class="badge danger">{{
+          t("restocking.overBudget")
+        }}</span>
       </div>
 
       <div v-if="recommendations.length === 0" class="empty-state">
-        {{ t('restocking.noRecommendations') }}
+        {{ t("restocking.noRecommendations") }}
       </div>
 
       <div v-else>
@@ -73,14 +84,14 @@
           <table>
             <thead>
               <tr>
-                <th>{{ t('restocking.colSku') }}</th>
-                <th>{{ t('restocking.colName') }}</th>
-                <th>{{ t('restocking.colTrend') }}</th>
-                <th>{{ t('restocking.colDemandGap') }}</th>
-                <th>{{ t('restocking.colUnitCost') }}</th>
-                <th>{{ t('restocking.colQty') }}</th>
-                <th>{{ t('restocking.colLineCost') }}</th>
-                <th>{{ t('restocking.colInclude') }}</th>
+                <th>{{ t("restocking.colSku") }}</th>
+                <th>{{ t("restocking.colName") }}</th>
+                <th>{{ t("restocking.colTrend") }}</th>
+                <th>{{ t("restocking.colDemandGap") }}</th>
+                <th>{{ t("restocking.colUnitCost") }}</th>
+                <th>{{ t("restocking.colQty") }}</th>
+                <th>{{ t("restocking.colLineCost") }}</th>
+                <th>{{ t("restocking.colInclude") }}</th>
               </tr>
             </thead>
             <tbody>
@@ -89,7 +100,9 @@
                 :key="item.item_sku"
                 :class="{ 'row-excluded': !getRowState(item.item_sku).checked }"
               >
-                <td><strong>{{ item.item_sku }}</strong></td>
+                <td>
+                  <strong>{{ item.item_sku }}</strong>
+                </td>
                 <td>{{ item.item_name }}</td>
                 <td>
                   <span :class="['badge', item.trend]">
@@ -108,7 +121,9 @@
                   />
                 </td>
                 <td class="line-cost">
-                  {{ formatCurrency(getLineCost(item.item_sku, item.unit_cost)) }}
+                  {{
+                    formatCurrency(getLineCost(item.item_sku, item.unit_cost))
+                  }}
                 </td>
                 <td>
                   <input
@@ -126,12 +141,19 @@
         <!-- Running Total Bar -->
         <div class="running-total-bar">
           <div class="running-total-info">
-            <span class="running-total-label">{{ t('restocking.runningTotal') }}:</span>
-            <span class="running-total-value" :class="overBudget ? 'over' : 'under'">
+            <span class="running-total-label"
+              >{{ t("restocking.runningTotal") }}:</span
+            >
+            <span
+              class="running-total-value"
+              :class="overBudget ? 'over' : 'under'"
+            >
               {{ formatCurrency(selectedCost) }}
             </span>
-            <span class="running-total-of">{{ t('restocking.budgetOf') }}</span>
-            <span class="running-total-budget">{{ formatCurrency(budget) }}</span>
+            <span class="running-total-of">{{ t("restocking.budgetOf") }}</span>
+            <span class="running-total-budget">{{
+              formatCurrency(budget)
+            }}</span>
           </div>
           <div class="progress-track">
             <div
@@ -149,7 +171,7 @@
             :disabled="!canPlaceOrder || submitting"
             @click="placeOrder"
           >
-            {{ submitting ? '...' : t('restocking.placeOrder') }}
+            {{ submitting ? "..." : t("restocking.placeOrder") }}
           </button>
         </div>
 
@@ -160,156 +182,175 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted } from 'vue'
-import { api } from '../api'
-import { useI18n } from '../composables/useI18n'
+import { ref, computed, watch, onMounted } from "vue";
+import { api } from "../api";
+import { useI18n } from "../composables/useI18n";
 
 export default {
-  name: 'Restocking',
+  name: "Restocking",
   setup() {
-    const { t, currentCurrency } = useI18n()
+    const { t, currentCurrency } = useI18n();
 
-    const budget = ref(25000)
-    const recommendations = ref([])
-    const loading = ref(false)
-    const error = ref(null)
-    const submitting = ref(false)
-    const submitError = ref(null)
-    const orderSuccess = ref(null)
+    const budget = ref(25000);
+    const recommendations = ref([]);
+    const loading = ref(false);
+    const error = ref(null);
+    const submitting = ref(false);
+    const submitError = ref(null);
+    const orderSuccess = ref(null);
 
     // Per-row state: keyed by sku, stores { qty, checked }
-    const rowState = ref({})
+    const rowState = ref({});
 
     const initRowState = (items) => {
-      const state = {}
+      const state = {};
       for (const item of items) {
         // Preserve existing state if user already edited, else initialize from API
-        const existing = rowState.value[item.item_sku]
+        const existing = rowState.value[item.item_sku];
         state[item.item_sku] = {
           qty: existing ? existing.qty : item.restock_quantity,
-          checked: existing !== undefined ? existing.checked : true
-        }
+          checked: existing !== undefined ? existing.checked : true,
+        };
       }
-      rowState.value = state
-    }
+      rowState.value = state;
+    };
 
     const getRowState = (sku) => {
-      return rowState.value[sku] || { qty: 0, checked: true }
-    }
+      return rowState.value[sku] || { qty: 0, checked: true };
+    };
 
     const updateQty = (sku, rawValue) => {
-      const qty = Math.max(1, parseInt(rawValue, 10) || 1)
+      const qty = Math.max(1, parseInt(rawValue, 10) || 1);
       if (rowState.value[sku]) {
-        rowState.value[sku] = { ...rowState.value[sku], qty }
+        rowState.value[sku] = { ...rowState.value[sku], qty };
       }
-    }
+    };
 
     const toggleChecked = (sku) => {
       if (rowState.value[sku]) {
-        rowState.value[sku] = { ...rowState.value[sku], checked: !rowState.value[sku].checked }
+        rowState.value[sku] = {
+          ...rowState.value[sku],
+          checked: !rowState.value[sku].checked,
+        };
       }
-    }
+    };
 
     const getLineCost = (sku, unitCost) => {
-      const state = getRowState(sku)
-      return state.qty * unitCost
-    }
+      const state = getRowState(sku);
+      return state.qty * unitCost;
+    };
 
     // Total estimated cost = sum of all recommended items at their default restock_cost
     const totalEstimatedCost = computed(() => {
-      return recommendations.value.reduce((sum, item) => sum + item.restock_cost, 0)
-    })
+      return recommendations.value.reduce(
+        (sum, item) => sum + item.restock_cost,
+        0,
+      );
+    });
 
     // Selected cost = sum of checked items at current qty
     const selectedCost = computed(() => {
       return recommendations.value.reduce((sum, item) => {
-        const state = getRowState(item.item_sku)
-        if (!state.checked) return sum
-        return sum + getLineCost(item.item_sku, item.unit_cost)
-      }, 0)
-    })
+        const state = getRowState(item.item_sku);
+        if (!state.checked) return sum;
+        return sum + getLineCost(item.item_sku, item.unit_cost);
+      }, 0);
+    });
 
-    const budgetRemaining = computed(() => budget.value - selectedCost.value)
+    const budgetRemaining = computed(() => budget.value - selectedCost.value);
 
-    const overBudget = computed(() => selectedCost.value > budget.value)
+    const overBudget = computed(() => selectedCost.value > budget.value);
 
     // Progress bar capped at 100% visually, but reflects over-budget via color
     const progressWidth = computed(() => {
-      if (budget.value === 0) return '0%'
-      const pct = Math.min((selectedCost.value / budget.value) * 100, 100)
-      return `${pct.toFixed(1)}%`
-    })
+      if (budget.value === 0) return "0%";
+      const pct = Math.min((selectedCost.value / budget.value) * 100, 100);
+      return `${pct.toFixed(1)}%`;
+    });
 
     const canPlaceOrder = computed(() => {
-      if (overBudget.value) return false
-      return recommendations.value.some(item => getRowState(item.item_sku).checked)
-    })
+      if (overBudget.value) return false;
+      return recommendations.value.some(
+        (item) => getRowState(item.item_sku).checked,
+      );
+    });
 
     const loadRecommendations = async () => {
-      loading.value = true
-      error.value = null
-      orderSuccess.value = null
+      loading.value = true;
+      error.value = null;
+      orderSuccess.value = null;
       try {
-        const data = await api.getRestockingRecommendations(budget.value)
-        recommendations.value = data
-        initRowState(data)
+        const data = await api.getRestockingRecommendations(budget.value);
+        recommendations.value = data;
+        initRowState(data);
       } catch (err) {
-        error.value = 'Failed to load restocking recommendations'
-        console.error(err)
+        error.value = "Failed to load restocking recommendations";
+        console.error(err);
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
     // Reload when budget changes
     watch(budget, () => {
-      loadRecommendations()
-    })
+      loadRecommendations();
+    });
 
     const formatCurrency = (value) => {
-      if (currentCurrency.value === 'JPY') {
-        return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY', maximumFractionDigits: 0 }).format(value)
+      if (currentCurrency.value === "JPY") {
+        return new Intl.NumberFormat("ja-JP", {
+          style: "currency",
+          currency: "JPY",
+          maximumFractionDigits: 0,
+        }).format(value);
       }
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value)
-    }
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(value);
+    };
 
     const formatUnitCost = (value) => {
-      if (currentCurrency.value === 'JPY') {
-        return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY', maximumFractionDigits: 0 }).format(value)
+      if (currentCurrency.value === "JPY") {
+        return new Intl.NumberFormat("ja-JP", {
+          style: "currency",
+          currency: "JPY",
+          maximumFractionDigits: 0,
+        }).format(value);
       }
-      return `$${value.toFixed(2)}`
-    }
+      return `$${value.toFixed(2)}`;
+    };
 
     const placeOrder = async () => {
-      if (!canPlaceOrder.value || submitting.value) return
-      submitting.value = true
-      submitError.value = null
-      orderSuccess.value = null
+      if (!canPlaceOrder.value || submitting.value) return;
+      submitting.value = true;
+      submitError.value = null;
+      orderSuccess.value = null;
 
       try {
         const checkedItems = recommendations.value
-          .filter(item => getRowState(item.item_sku).checked)
-          .map(item => ({
+          .filter((item) => getRowState(item.item_sku).checked)
+          .map((item) => ({
             sku: item.item_sku,
             name: item.item_name,
             quantity: getRowState(item.item_sku).qty,
-            unit_cost: item.unit_cost
-          }))
+            unit_cost: item.unit_cost,
+          }));
 
         const result = await api.submitRestockingOrder({
           items: checkedItems,
-          total_budget: budget.value
-        })
-        orderSuccess.value = result
+          total_budget: budget.value,
+        });
+        orderSuccess.value = result;
       } catch (err) {
-        submitError.value = 'Failed to submit order. Please try again.'
-        console.error(err)
+        submitError.value = "Failed to submit order. Please try again.";
+        console.error(err);
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
-    }
+    };
 
-    onMounted(loadRecommendations)
+    onMounted(loadRecommendations);
 
     return {
       t,
@@ -333,10 +374,10 @@ export default {
       canPlaceOrder,
       formatCurrency,
       formatUnitCost,
-      placeOrder
-    }
-  }
-}
+      placeOrder,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -520,7 +561,9 @@ export default {
 .progress-fill {
   height: 100%;
   border-radius: 4px;
-  transition: width 0.3s ease, background-color 0.3s ease;
+  transition:
+    width 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .progress-fill.under-budget {
@@ -547,7 +590,9 @@ export default {
   font-size: 0.938rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, opacity 0.2s;
+  transition:
+    background 0.2s,
+    opacity 0.2s;
 }
 
 .place-order-btn:hover:not(:disabled) {

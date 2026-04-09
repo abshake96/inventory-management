@@ -9,6 +9,10 @@ from datetime import date, timedelta
 # In-memory storage for submitted restocking orders (lost on restart like all other mutable state)
 submitted_orders = []
 
+# In-memory storage for tasks created via the API
+api_tasks = []
+task_id_counter = 100  # starts at 100 to avoid collisions with mock task IDs 1-4 in useAuth.js
+
 # Pricing: PSU-501 matches inventory at $32.50, everything else is $50/unit
 RESTOCK_UNIT_COSTS = {'PSU-501': 32.50}
 DEFAULT_UNIT_COST = 50.0
@@ -175,6 +179,18 @@ class RestockingOrder(BaseModel):
     total_value: float
     lead_time_days: int
 
+class Task(BaseModel):
+    id: int
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str = "medium"
+    dueDate: str
+
 # API endpoints
 @app.get("/")
 def root():
@@ -233,6 +249,33 @@ def get_backlog():
         item_dict["has_purchase_order"] = has_po
         result.append(item_dict)
     return result
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order for a backlog item."""
+    po = {
+        'id': str(uuid.uuid4()),
+        'backlog_item_id': request.backlog_item_id,
+        'supplier_name': request.supplier_name,
+        'quantity': request.quantity,
+        'unit_cost': request.unit_cost,
+        'expected_delivery_date': request.expected_delivery_date,
+        'status': 'Pending',
+        'created_date': date.today().isoformat(),
+        'notes': request.notes,
+    }
+    purchase_orders.append(po)
+    return po
+
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order_by_backlog_item(backlog_item_id: str):
+    """Get the purchase order for a specific backlog item."""
+    po = next((po for po in purchase_orders if po["backlog_item_id"] == backlog_item_id), None)
+    if not po:
+        raise HTTPException(status_code=404, detail="Purchase order not found")
+    return po
+
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(
@@ -435,6 +478,49 @@ def create_restocking_order(request: RestockingOrderRequest):
 def get_restocking_orders():
     """Return all submitted restocking orders."""
     return submitted_orders
+
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Return all API-created tasks."""
+    return api_tasks
+
+
+@app.post("/api/tasks", response_model=Task)
+def create_task(request: CreateTaskRequest):
+    """Create a new task."""
+    global task_id_counter
+    task = {
+        'id': task_id_counter,
+        'title': request.title,
+        'priority': request.priority,
+        'dueDate': request.dueDate,
+        'status': 'pending',
+    }
+    task_id_counter += 1
+    api_tasks.append(task)
+    return task
+
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: int):
+    """Delete a task by ID."""
+    global api_tasks
+    task = next((t for t in api_tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    api_tasks = [t for t in api_tasks if t["id"] != task_id]
+    return {"message": "deleted"}
+
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: int):
+    """Toggle a task's status between pending and completed."""
+    task = next((t for t in api_tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
 
 
 if __name__ == "__main__":
