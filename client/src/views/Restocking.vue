@@ -19,6 +19,7 @@
           :max="50000"
           :step="1000"
           v-model.number="budget"
+          :style="{ background: sliderBackground }"
         />
         <div class="budget-range-labels">
           <span>{{ formatCurrency(1000) }}</span>
@@ -268,6 +269,11 @@ export default {
       return `${pct.toFixed(1)}%`;
     });
 
+    const sliderBackground = computed(() => {
+      const pct = ((budget.value - 1000) / (50000 - 1000)) * 100;
+      return `linear-gradient(to right, #2563eb 0%, #2563eb ${pct}%, #e2e8f0 ${pct}%, #e2e8f0 100%)`;
+    });
+
     const canPlaceOrder = computed(() => {
       if (overBudget.value) return false;
       return recommendations.value.some(
@@ -371,6 +377,7 @@ export default {
       budgetRemaining,
       overBudget,
       progressWidth,
+      sliderBackground,
       canPlaceOrder,
       formatCurrency,
       formatUnitCost,
@@ -418,7 +425,6 @@ export default {
   height: 6px;
   -webkit-appearance: none;
   appearance: none;
-  background: #e2e8f0;
   border-radius: 3px;
   outline: none;
   cursor: pointer;
